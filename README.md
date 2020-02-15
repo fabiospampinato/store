@@ -16,7 +16,7 @@ Read more about how Store compares against other libraries in the [FAQ](#faq) se
 ## Install
 
 ```sh
-npm install --save @fabiospampinato/store
+npm install --save store@npm:@fabiospampinato/store
 ```
 
 ## Usage
