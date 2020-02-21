@@ -7,7 +7,7 @@ A beautifully-simple framework-agnostic modern state management library.
 ## Features
 
 - **Simple**: there's barely anything to learn and no boilerplate code required. Thanks to our usage of [`Proxy`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)s you just have to wrap your state with [`store`](#store), mutate it and retrieve values from it just like if it was a regular object, and listen to changes via [`onChange`](#onchange) or [`useStore`](#usestore).
-- **Framework-agnostic**: Store doesn't make any assuptions about your UI framework of choice, in fact it can also be used without one.
+- **Framework-agnostic**: Store doesn't make any assumptions about your UI framework of choice, in fact it can also be used without one.
 - **React support**: an hook for React is provided, because that's the UI framework I'm using. Support for other UI frameworks can be added easily, PRs are very welcome.
 - **TypeScript-ready**: Store is written in TypeScript and enables you to get a fully typed app with no extra effort.
 
