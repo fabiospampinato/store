@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {$GET_RECORD_START, $GET_RECORD_STOP} from 'proxy-watcher/dist/consts'; //UGLY
+import {record} from 'proxy-watcher';
 import {IDENTITY} from './consts';
 import ChangesSubscribers from './changes_subscribers';
 import Utils from './utils';
@@ -21,10 +21,9 @@ function onChange<Store extends object, R> ( store: Store, selector: (( store: S
 
     if ( selector === IDENTITY ) return listener ( store );
 
-    store[$GET_RECORD_START];
+    let data;
 
-    const data = selector ( store ),
-          rootsGetAll: string[] = store[$GET_RECORD_STOP];
+    const rootsGetAll = record ( store, () => data = selector ( store ) );
 
     if ( data === store || !rootsGetAll.length ) return listener ( data );
 

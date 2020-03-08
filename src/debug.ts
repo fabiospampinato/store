@@ -2,7 +2,6 @@
 /* IMPORT */
 
 import isEmptyObject from 'plain-object-is-empty';
-import ProxyUtils from 'proxy-watcher/dist/utils'; //UGLY
 import * as global from 'window-or-global';
 import ChangesSubscribers from './changes_subscribers';
 import Hooks from './hooks';
@@ -24,11 +23,13 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
 
   options = Object.assign ( {}, debug.defaultOptions, options );
 
+  const cloneDeep = require ( 'clone-deep' );
+
   const STORE = global.STORE = {
     stores: [] as Store[], //FIXME: This shouldn't store a strong reference to stores, but also a WeakSet doesn't allow to retrieve all of its values...
     log: () => {
       STORE.stores.forEach ( store => {
-        console.log ( ProxyUtils.cloneDeep ( store ) );
+        console.log ( cloneDeep ( store ) );
       });
     }
   };
@@ -37,7 +38,7 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
 
     STORE.stores.push ( store );
 
-    let storePrev = ProxyUtils.cloneDeep ( store );
+    let storePrev = cloneDeep ( store );
 
     if ( options.logStoresNew ) {
       Utils.log.group ( 'Store - New', options.collapsed, () => {
@@ -51,7 +52,7 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
 
       changes.subscribe ( () => {
 
-        const storeNext = ProxyUtils.cloneDeep ( store );
+        const storeNext = cloneDeep ( store );
 
         Utils.log.group ( `Store - Change - ${new Date ().toISOString ()}`, options.collapsed, () => {
 

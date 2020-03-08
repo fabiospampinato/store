@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import './changes_counters';
-import watch from 'proxy-watcher';
+import {watch} from 'proxy-watcher';
 import ChangesSubscriber from './changes_subscriber';
 import ChangesSubscribers from './changes_subscribers';
 import Hooks from './hooks';
