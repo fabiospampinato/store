@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import isEmptyObject from 'plain-object-is-empty';
+import {target} from 'proxy-watcher';
 import * as global from 'window-or-global';
 import ChangesSubscribers from './changes_subscribers';
 import Hooks from './hooks';
@@ -29,7 +30,7 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
     stores: [] as Store[], //FIXME: This shouldn't store a strong reference to stores, but also a WeakSet doesn't allow to retrieve all of its values...
     log: () => {
       STORE.stores.forEach ( store => {
-        console.log ( cloneDeep ( store ) );
+        console.log ( cloneDeep ( target ( store ) ) );
       });
     }
   };
@@ -38,7 +39,7 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
 
     STORE.stores.push ( store );
 
-    let storePrev = cloneDeep ( store );
+    let storePrev = cloneDeep ( target ( store ) );
 
     if ( options.logStoresNew ) {
       Utils.log.group ( 'Store - New', options.collapsed, () => {
@@ -52,7 +53,7 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
 
       changes.subscribe ( () => {
 
-        const storeNext = cloneDeep ( store );
+        const storeNext = cloneDeep ( target ( store ) );
 
         Utils.log.group ( `Store - Change - ${new Date ().toISOString ()}`, options.collapsed, () => {
 
