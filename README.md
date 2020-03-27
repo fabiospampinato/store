@@ -23,6 +23,7 @@ npm install --save store@npm:@fabiospampinato/store
 
 - Core
   - [`store`](#store)
+  - [`isStore`](#isstore)
   - [`onChange`](#onchange)
   - [`debug`](#debug)
   - [`Hooks`](#hooks)
@@ -55,6 +56,19 @@ const CounterApp = {
 - ℹ️ Never mutate the raw object passed to `store` directly, as those mutations won't be detected, always go through the proxied object returned by `store` instead. I'd suggest you to wrap your raw objects with `store` immediately so you won't even keep a reference to them.
 - ℹ️ In order to trigger a change simply mutate the proxied object returned by `store` as if it was a regular object.
 - ℹ️ Mutations happening at locations that need to be reached via a [Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) aren't detected (e.g. `{ [Symbol ()]: { undetected: true }`).
+
+#### `isStore`
+
+This function checks if the passed value is a recognized `Proxy` object or not.
+
+Example usage:
+
+```ts
+import {store, isStore} from 'store';
+
+isStore ( store ( {} ) ); // => true
+isStore ( {} ); // => false
+```
 
 #### `onChange`
 
