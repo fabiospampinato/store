@@ -99,13 +99,13 @@ describe ( 'Subscriber', it => {
 
     subscriber.subscribe ( listener );
 
-    await delay ( 10 );
+    await delay ( 100 );
 
     t.deepEqual ( calls, [] );
 
     subscriber.schedule ();
 
-    await delay ( 10 );
+    await delay ( 100 );
 
     t.deepEqual ( calls, [1] );
 

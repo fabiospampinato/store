@@ -47,7 +47,7 @@ describe ( 'ChangesSubscriber', it => {
     proxy.o.deep.a.push ( 4 );
     proxy.o.deep.deeper = false;
 
-    await delay ( 10 );
+    await delay ( 100 );
 
     t.deepEqual ( paths, ['1', '2', 'foo', 'a', 'o'] );
     t.deepEqual ( changes.paths, [] );

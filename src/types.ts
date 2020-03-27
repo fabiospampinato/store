@@ -17,7 +17,7 @@ type Disposer = () => void;
 
 type Store<S extends object = object> = S;
 
-type ChangeListener<Data> = ( data: Data ) => any;
+type ChangeListener<Args extends any[]> = ( ...args: Args ) => any;
 
 type SubscriberListener<Args extends any[] = []> = ( ...args: Args ) => any;
 

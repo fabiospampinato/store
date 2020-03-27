@@ -28,6 +28,7 @@ npm install --save store@npm:@fabiospampinato/store
   - [`Hooks`](#hooks)
 - Extra/React
   - [`useStore`](#usestore)
+  - [`useStores`](#usestores)
 
 ### Core
 
@@ -62,15 +63,19 @@ Next you'll probably want to listen for changes to your stores, the `onChange` f
 This is its interface:
 
 ```ts
-// No selector, listen to all changes
+// Single store, without selector, listen to all changes to the store
 function onChange ( store: Store, listener: ( data: Store ) => any ): Disposer;
-// With selector, listen to only changes that cause the value returned by the selector to change
+// Multiple stores, without selector, listen to all changes to any store
+function onChange ( stores: Store[], listener: ( ...data: Store[] ) => any ): Disposer;
+// Single store, with selector, listen to only changes that cause the value returned by the selector to change
 function onChange ( store: Store, selector: ( store: Store ) => Data, listener: ( data: Data ) => any ): Disposer;
+// Multiple stores, with selector, listen to only changes that cause the value returned by the selector to change
+function onChange ( stores: Store[], selector: ( ...stores: Store[] ) => Data, listener: ( data: Data ) => any ): Disposer;
 ```
 
-- The `store` argument is a proxied object retuned by the [`store`](#store) function.
-- The `listener` argument is the function that will be called when a change to the store occurs. It will be called with the value returned by the `selector`, if a selector was provided, or with the entire store otherwise.
-- The `selector` optional argument is a function that computes some value that will be passed to the listener as its first argument. It's called with the store as its first argument.
+- The `store`/`stores` argument is either a single proxied object retuned by the [`store`](#store) function or an array of those.
+- The `listener` argument is the function that will be called when a change to the provided stores occurs. It will be called with the value returned by the `selector`, if a selector was provided, or with all the provided stores as its arguments otherwise.
+- The `selector` optional argument is a function that computes some value that will be passed to the listener as its first argument. It's called with all the provided stores as its arguments.
 - The return value is a disposer, a function that when called will terminate this specific listening operation.
 
 Example usage:
@@ -199,21 +204,25 @@ These extra features, intended to be used with React, are available from a dedic
 
 #### `useStore`
 
-`useStore` is a React [hook](https://reactjs.org/docs/hooks-intro.html) for accessing a store's values from within a functional component in a way that makes the component re-render whenever those values change.
+`useStore` is a React [hook](https://reactjs.org/docs/hooks-intro.html) for accessing a store's, or multiple stores's, values from within a functional component in a way that makes the component re-render whenever those values change.
 
 This is its interface:
 
 ```ts
-// No selector, re-render after any change
+// Single store, without selector, re-render after any change to the store
 function useStore ( store: Store ): Store;
-// With selector, re-render only after changes that cause the value returned by the selector to change
+// Multiple stores, without selector, re-render after any change to any store
+function useStore ( stores: Store[] ): Store[];
+// Single store, with selector, re-render only after changes that cause the value returned by the selector to change
 function useStore ( store: Store, selector: ( store: Store ) => Data, dependencies: ReadonlyArray<any> = [] ): Data;
+// Multiple stores, with selector, re-render only after changes that cause the value returned by the selector to change
+function useStore ( stores: Store[], selector: ( ...args: Store[] ) => Data, dependencies: ReadonlyArray<any> = [] ): Data;
 ```
 
-- The `store` argument is a proxied object retuned by the [`store`](#store) function.
-- The `selector` optional argument if a function that computes some value that will be the return value of the hook. It's called with the store as its first argument.
+- The `store`/`stores` argument is either a single proxied object retuned by the [`store`](#store) function or an array of those.
+- The `selector` optional argument if a function that computes some value that will be the return value of the hook. It's called with all the passed stores as its arguments.
 - The `dependencies` optional argument is an array of dependencies used to inform React about any objects your selector function will reference from outside of its innermost scope, ensuring the selector gets called again if any of those change.
-- The return value is whatever `selector` returns, if a selector was provided, or the entire store otherwise.
+- The return value is whatever `selector` returns, if a selector was provided, or the entire store if only one store was provided, or the entire array of stores otherwise.
 
 Example usage:
 
@@ -259,6 +268,16 @@ const CounterComponent2 = () => {
 - ℹ️ Using a selector that retrieves only parts of the store will improve performance.
 - ℹ️ It's possible that the component will be re-rendered even if the object returned by the selector, or the entire store, didn't actually change.
 - ℹ️ Re-renders are automatically coalesced and batched together for performance, so if synchronously, i.e. within a single event loop tick, the stores you're listening to are mutated multiple times the related components will only be re-rendered once.
+
+#### `useStores`
+
+`useStores` is just an alias for `useStore`, this alias is provided in case passing multiple stores to an hook called `useStore` doesn't feel quite right for you.
+
+Example import:
+
+```tsx
+import {useStores} from 'store/x/react';
+```
 
 ## FAQ
 

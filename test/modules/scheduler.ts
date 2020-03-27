@@ -32,7 +32,7 @@ describe ( 'Scheduler', it => {
 
     t.deepEqual ( calls, [] );
 
-    await delay ( 10 );
+    await delay ( 100 );
 
     t.deepEqual ( calls, [1] );
 
@@ -66,7 +66,7 @@ describe ( 'Scheduler', it => {
     Scheduler.unschedule ();
     Scheduler.schedule ();
 
-    await delay ( 10 );
+    await delay ( 100 );
 
     t.deepEqual ( calls, [1] );
 
@@ -83,7 +83,7 @@ describe ( 'Scheduler', it => {
     Scheduler.schedule ( fn );
     Scheduler.unschedule ();
 
-    await delay ( 10 );
+    await delay ( 100 );
 
     t.deepEqual ( calls, [] );
 
@@ -131,7 +131,7 @@ describe ( 'Scheduler', it => {
 
     t.deepEqual ( calls, [1, 2] );
 
-    await delay ( 10 );
+    await delay ( 100 );
 
     t.deepEqual ( calls, [1, 2, 3] );
 
