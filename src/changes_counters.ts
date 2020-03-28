@@ -20,19 +20,9 @@ const ChangesCounters = {
 
   },
 
-  getMultiple: ( stores: Store[] ): Map<Store, number> => {
+  getMultiple: ( stores: Store[] ): number[] => {
 
-    const counters = new Map ();
-
-    for ( let i = 0, l = stores.length; i < l; i++ ) {
-
-      const store = stores[i];
-
-      counters.set ( store, ChangesCounters.get ( store ) );
-
-    }
-
-    return counters;
+    return stores.map ( ChangesCounters.get );
 
   },
 

@@ -19,9 +19,9 @@ describe ( 'ChangesSubscribers', it => {
 
   });
 
-  it ( 'throws if no ChangeSubscriber has been found ', t => {
+  it ( 'returned undefined if no ChangeSubscriber has been found ', t => {
 
-    t.throws ( () => ChangesSubscribers.get ( {} ), /garbage-collected/i );
+    t.is ( ChangesSubscribers.get ( {} ), undefined );
 
   });
 

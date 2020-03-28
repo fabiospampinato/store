@@ -47,13 +47,13 @@ const Scheduler = {
 
     Scheduler.triggering = true;
 
-    const fns = Scheduler.queue.values ();
+    const fns = Array.from ( Scheduler.queue.values () );
 
-    Scheduler.queue = new Set<Function> ();
+    Scheduler.queue.clear ();
 
     Scheduler.batch ( () => {
 
-      for ( const fn of fns ) fn ();
+      for ( let i = 0, l = fns.length; i < l; i++ ) fns[i]();
 
     });
 

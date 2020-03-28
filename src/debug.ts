@@ -5,6 +5,7 @@ import isEmptyObject from 'plain-object-is-empty';
 import {target} from 'proxy-watcher';
 import * as global from 'window-or-global';
 import ChangesSubscribers from './changes_subscribers';
+import Errors from './errors';
 import Hooks from './hooks';
 import Utils from './utils';
 import {DebugGlobal, DebugOptions, Store} from './types';
@@ -50,6 +51,8 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
     if ( options.logChangesFull || options.logChangesDiff ) {
 
       const changes = ChangesSubscribers.get ( store );
+
+      if ( !changes ) throw Errors.storeNotFound ();
 
       changes.subscribe ( () => {
 

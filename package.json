@@ -68,7 +68,7 @@
     "clone-deep": "^4.0.1",
     "deep-object-diff": "^1.1.0",
     "plain-object-is-empty": "^1.0.0",
-    "proxy-watcher": "^2.3.0",
+    "proxy-watcher": "^2.4.0",
     "react-use-mounted": "^1.0.0",
     "window-or-global": "^1.0.1"
   },

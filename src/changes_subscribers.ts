@@ -14,13 +14,9 @@ const ChangesSubscribers = {
 
   /* API */
 
-  get: ( store: Store ): ChangesSubscriber => {
+  get: ( store: Store ): ChangesSubscriber | undefined => {
 
-    const subscriber = ChangesSubscribers.subscribers.get ( store );
-
-    if ( !subscriber ) throw new Error ( 'Store not found, it either got garbage-collected (you must keep a reference to it) or you are passing "store" a non-proxied store somewhere' );
-
-    return subscriber;
+    return ChangesSubscribers.subscribers.get ( store );
 
   },
 

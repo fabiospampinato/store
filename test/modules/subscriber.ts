@@ -111,7 +111,7 @@ describe ( 'Subscriber', it => {
 
   });
 
-  it ( 'will pass to the listeners either the trigger arguments or the instance arguments', t => {
+  it ( 'will pass to the listeners the instance arguments', t => {
 
     const subscriber = new Subscriber (),
           calls = [],
@@ -137,16 +137,10 @@ describe ( 'Subscriber', it => {
     t.deepEqual ( calls, [1, 1] );
     t.deepEqual ( args, ['a'] );
 
-    subscriber.args = ['i'];
-    subscriber.trigger ( 'a' );
+    subscriber.trigger ( 'a', 'b' );
 
     t.deepEqual ( calls, [1, 1, 1] );
-    t.deepEqual ( args, ['a', 'a'] );
-
-    subscriber.trigger ();
-
-    t.deepEqual ( calls, [1, 1, 1, 1] );
-    t.deepEqual ( args, ['a', 'a', 'i'] );
+    t.deepEqual ( args, ['a', 'a', 'b'] );
 
   });
 

@@ -9,6 +9,7 @@ import * as Adapter2 from 'enzyme-adapter-react-16'; //UGLY: For whatever reason
 import delay from 'promise-resolve-timeout';
 import * as React from 'react';
 import {API, API2, AppSingleWithoutSelector, AppSingleWithSelector, AppMultipleWithoutSelector, AppMultipleWithSelector} from '../fixtures/app';
+import {useStore} from '../../x/react';
 
 Enzyme.configure ({ adapter: new ( Adapter1 || Adapter2 ) () });
 
@@ -101,6 +102,12 @@ describe ( 'useStore', it => {
       t.is ( rendersNr, 4 );
 
     }
+
+  });
+
+  it ( 'throws if an empty array of stores has been provided ', t => {
+
+    t.throws ( () => useStore ( [] ), /empty/i );
 
   });
 

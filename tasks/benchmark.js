@@ -1,89 +1,234 @@
 
 /* IMPORT */
 
-const {store, onChange} = require ( '../x' ),
+const {store, isStore, onChange} = require ( '../x' ),
       {default: Scheduler} = require ( '../x/scheduler' ),
-      {OBJ, NOOP, SELECTOR} = require ( './fixtures' ),
+      {OBJ, NOOP, SELECTOR_SINGLE, SELECTOR_MULTIPLE} = require ( './fixtures' ),
       benchmark = require ( 'benchloop' );
 
-Scheduler.schedule = Scheduler.trigger;
+Scheduler.schedule = fn => fn && fn ();
 
 /* BENCHMARK */
 
 benchmark.defaultOptions = Object.assign ( benchmark.defaultOptions, {
-  iterations: 5000,
+  iterations: 7500,
   log: 'compact'
 });
 
 benchmark ({
   name: 'store',
-  fn: () => {
-    store ( OBJ () );
+  beforeEach: ctx => {
+    ctx.obj = OBJ ();
+  },
+  fn: ctx => {
+    store ( ctx.obj );
   }
 });
 
-benchmark ({
-  name: 'onChange:register:all',
-  beforeEach: ctx => {
-    ctx.proxy = store ( OBJ () );
-  },
-  fn: ctx => {
-    onChange ( ctx.proxy, NOOP );
-  }
+benchmark.group ( 'isStore', () => {
+
+  benchmark ({
+    name: 'no',
+    beforeEach: ctx => {
+      ctx.obj = OBJ ();
+    },
+    fn: ctx => {
+      isStore ( ctx.obj );
+    }
+  });
+
+  benchmark ({
+    name: 'yes',
+    beforeEach: ctx => {
+      ctx.proxy = store ( OBJ () );
+    },
+    fn: ctx => {
+      isStore ( ctx.proxy );
+    }
+  });
+
 });
 
-benchmark ({
-  name: 'onChange:register:selector',
-  beforeEach: ctx => {
-    ctx.proxy = store ( OBJ () );
-  },
-  fn: ctx => {
-    onChange ( ctx.proxy, SELECTOR, NOOP );
-  }
-});
+benchmark.group ( 'onChange', () => {
 
-benchmark ({
-  name: 'onChange:trigger:all:no',
-  beforeEach: ctx => {
-    ctx.proxy = store ( OBJ () );
-    onChange ( ctx.proxy, NOOP );
-  },
-  fn: ctx => {
-    ctx.proxy.foo = 123;
-  }
-});
+  benchmark.group ( 'register', () => {
 
-benchmark ({
-  name: 'onChange:trigger:all:yes',
-  beforeEach: ctx => {
-    ctx.proxy = store ( OBJ () );
-    onChange ( ctx.proxy, NOOP );
-  },
-  fn: ctx => {
-    ctx.proxy.foo = 1234;
-  }
-});
+    benchmark.group ( 'single', () => {
 
-benchmark ({
-  name: 'onChange:trigger:selector:no',
-  beforeEach: ctx => {
-    ctx.proxy = store ( OBJ () );
-    onChange ( ctx.proxy, SELECTOR, NOOP );
-  },
-  fn: ctx => {
-    ctx.proxy.bar.deep = true;
-  }
-});
+      benchmark ({
+        name: 'all',
+        beforeEach: ctx => {
+          ctx.proxy = store ( OBJ () );
+        },
+        fn: ctx => {
+          onChange ( ctx.proxy, NOOP );
+        }
+      });
 
-benchmark ({
-  name: 'onChange:trigger:selector:yes',
-  beforeEach: ctx => {
-    ctx.proxy = store ( OBJ () );
-    onChange ( ctx.proxy, SELECTOR, NOOP );
-  },
-  fn: ctx => {
-    ctx.proxy.bar.deep = false;
-  }
+      benchmark ({
+        name: 'selector',
+        beforeEach: ctx => {
+          ctx.proxy = store ( OBJ () );
+        },
+        fn: ctx => {
+          onChange ( ctx.proxy, SELECTOR_SINGLE, NOOP );
+        }
+      });
+
+    });
+
+    benchmark.group ( 'multiple', () => {
+
+      benchmark ({
+        name: 'all',
+        beforeEach: ctx => {
+          ctx.proxy1 = store ( OBJ () );
+          ctx.proxy2 = store ( OBJ () );
+        },
+        fn: ctx => {
+          onChange ( [ctx.proxy1, ctx.proxy2], NOOP );
+        }
+      });
+
+      benchmark ({
+        name: 'selector',
+        beforeEach: ctx => {
+          ctx.proxy1 = store ( OBJ () );
+          ctx.proxy2 = store ( OBJ () );
+        },
+        fn: ctx => {
+          onChange ( [ctx.proxy1, ctx.proxy2], SELECTOR_MULTIPLE, NOOP );
+        }
+      });
+
+    });
+
+  });
+
+  benchmark.group ( 'trigger', () => {
+
+    benchmark.group ( 'single', () => {
+
+      benchmark.group ( 'all', () => {
+
+        benchmark ({
+          name: 'no',
+          beforeEach: ctx => {
+            ctx.proxy = store ( OBJ () );
+            onChange ( ctx.proxy, NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy.foo = 123;
+          }
+        });
+
+        benchmark ({
+          name: 'yes',
+          beforeEach: ctx => {
+            ctx.proxy = store ( OBJ () );
+            onChange ( ctx.proxy, NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy.foo = 1234;
+          }
+        });
+
+      });
+
+      benchmark.group ( 'selector', () => {
+
+        benchmark ({
+          name: 'no',
+          beforeEach: ctx => {
+            ctx.proxy = store ( OBJ () );
+            onChange ( ctx.proxy, SELECTOR_SINGLE, NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy.bar.deep = true;
+          }
+        });
+
+        benchmark ({
+          name: 'yes',
+          beforeEach: ctx => {
+            ctx.proxy = store ( OBJ () );
+            onChange ( ctx.proxy, SELECTOR_SINGLE, NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy.bar.deep = false;
+          }
+        });
+
+      });
+
+    });
+
+    benchmark.group ( 'multiple', () => {
+
+      benchmark.group ( 'all', () => {
+
+        benchmark ({
+          name: 'no',
+          beforeEach: ctx => {
+            ctx.proxy1 = store ( OBJ () );
+            ctx.proxy2 = store ( OBJ () );
+            onChange ( [ctx.proxy1, ctx.proxy2], NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy1.foo = 123;
+            ctx.proxy2.foo = 123;
+          }
+        });
+
+        benchmark ({
+          name: 'yes',
+          beforeEach: ctx => {
+            ctx.proxy1 = store ( OBJ () );
+            ctx.proxy2 = store ( OBJ () );
+            onChange ( [ctx.proxy1, ctx.proxy2], NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy1.foo = 1234;
+            ctx.proxy2.foo = 1234;
+          }
+        });
+
+      });
+
+      benchmark.group ( 'selector', () => {
+
+        benchmark ({
+          name: 'no',
+          beforeEach: ctx => {
+            ctx.proxy1 = store ( OBJ () );
+            ctx.proxy2 = store ( OBJ () );
+            onChange ( [ctx.proxy1, ctx.proxy2], SELECTOR_MULTIPLE, NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy1.bar.deep = true;
+            ctx.proxy2.bar.deep = true;
+          }
+        });
+
+        benchmark ({
+          name: 'yes',
+          beforeEach: ctx => {
+            ctx.proxy1 = store ( OBJ () );
+            ctx.proxy2 = store ( OBJ () );
+            onChange ( [ctx.proxy1, ctx.proxy2], SELECTOR_MULTIPLE, NOOP );
+          },
+          fn: ctx => {
+            ctx.proxy1.bar.deep = false;
+            ctx.proxy2.bar.deep = false;
+          }
+        });
+
+      });
+
+    });
+
+  });
+
 });
 
 benchmark.summary ();

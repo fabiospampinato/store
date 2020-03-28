@@ -5,19 +5,9 @@ import ChangesSubscribers from './changes_subscribers';
 
 /* IS STORE */
 
-function isStore ( obj: any ): boolean {
+function isStore ( value: any ): boolean {
 
-  try {
-
-    ChangesSubscribers.get ( obj );
-
-    return true;
-
-  } catch {
-
-    return false;
-
-  }
+  return !!ChangesSubscribers.get ( value );
 
 }
 

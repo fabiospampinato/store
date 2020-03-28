@@ -50,8 +50,7 @@ describe ( 'ChangesSubscriber', it => {
     await delay ( 100 );
 
     t.deepEqual ( paths, ['1', '2', 'foo', 'a', 'o'] );
-    t.deepEqual ( changes.paths, [] );
-    t.deepEqual ( changes.args, [[]] );
+    t.is ( changes.paths, undefined );
 
   });
 

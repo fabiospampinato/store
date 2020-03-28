@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {EMPTY_ARRAY} from './consts';
 import Subscriber from './subscriber';
 import Utils from './utils';
 
@@ -10,13 +11,13 @@ class ChangesSubscriber extends Subscriber<[string[]]> {
 
   /* VARIABLES */
 
-  protected paths: string[] = [];
+  protected paths: string[] | undefined;
 
   /* API */
 
   schedule ( paths: string[] ): void {
 
-    this.paths = this.paths.concat ( paths );
+    this.paths = this.paths ? this.paths.concat ( paths ) : paths;
 
     return super.schedule ();
 
@@ -24,14 +25,12 @@ class ChangesSubscriber extends Subscriber<[string[]]> {
 
   trigger (): void {
 
-    const roots = Utils.uniq ( this.paths.map ( path => path.replace ( /^(.+?)\..*$/, '$1' ) ) );
+    const paths = this.paths || EMPTY_ARRAY,
+          roots = Utils.uniq ( Utils.paths.rootify ( paths ) );
 
-    this.args = [roots];
+    this.paths = undefined;
 
-    super.trigger.apply ( this, arguments );
-
-    this.paths = [];
-    this.args=[this.paths];
+    super.trigger ( roots );
 
   }
 

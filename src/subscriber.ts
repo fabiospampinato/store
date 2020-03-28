@@ -3,7 +3,7 @@
 
 import {NOOP} from './consts';
 import Scheduler from './scheduler';
-import {Disposer, SubscriberListener} from './types';
+import {Disposer, Listener} from './types';
 
 /* SUBSCRIBER */
 
@@ -12,20 +12,12 @@ class Subscriber<ListenerArgs extends any[] = []> {
   /* VARIABLES */
 
   protected args: ListenerArgs | undefined = undefined;
-  protected listeners: SubscriberListener<ListenerArgs>[] = [];
-  protected _trigger: ( ...args: ListenerArgs ) => void;
-
-  /* CONSTRUCTOR */
-
-  constructor () {
-
-    this._trigger = this.trigger.bind ( this );
-
-  }
+  protected listeners: Listener<ListenerArgs>[] = [];
+  protected _trigger = this.trigger.bind ( this );
 
   /* API */
 
-  subscribe ( listener: SubscriberListener<ListenerArgs> ): Disposer {
+  subscribe ( listener: Listener<ListenerArgs> ): Disposer {
 
     if ( this.listeners.indexOf ( listener ) >= 0 ) return NOOP;
 
@@ -47,13 +39,14 @@ class Subscriber<ListenerArgs extends any[] = []> {
 
   trigger ( ...args: ListenerArgs ): void {
 
-    const listenerArgs = args.length ? args : this.args || args;
+    const {listeners} = this,
+          {length} = listeners;
 
-    this.listeners.forEach ( listener => {
+    for ( let i = 0; i < length; i++ ) {
 
-      listener.apply ( undefined, listenerArgs );
+      listeners[i].apply ( undefined, args );
 
-    });
+    }
 
   }
 

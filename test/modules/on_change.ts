@@ -177,6 +177,12 @@ describe ( 'onChange', it => {
 
     });
 
+    it ( 'throws if no ChangeSubscriber has been found ', t => {
+
+      t.throws ( () => onChange ( {}, () => {} ), /garbage-collected/i );
+
+    });
+
     it ( 'returns a disposer', async t => {
 
       const proxy = store ({ foo: 123 });
@@ -466,6 +472,18 @@ describe ( 'onChange', it => {
       await delay ( 100 );
 
       t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 3, 0, 5, 6, 0, 2, 3, 0, 5, 6, 0, 2, 3, 0, 5, 6] );
+
+    });
+
+    it ( 'throws if no ChangeSubscriber has been found ', t => {
+
+      t.throws ( () => onChange ( [{}, []], () => {} ), /garbage-collected/i );
+
+    });
+
+    it ( 'throws if an empty array of stores has been provided ', t => {
+
+      t.throws ( () => onChange ( [], () => {} ), /empty/i );
 
     });
 

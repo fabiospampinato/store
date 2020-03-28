@@ -3,10 +3,11 @@
 
 import {useCallback, useDebugValue, useEffect, useMemo, useRef, useState} from 'react';
 import useMounted from 'react-use-mounted';
-import {isProxy} from 'proxy-watcher';
 import ChangesCounters from '../changes_counters';
 import {EMPTY_ARRAY, SELECTOR_IDENTITY} from '../consts';
+import Errors from '../errors';
 import onChange from '../on_change';
+import Utils from '../utils';
 
 /* USE STORE */
 
@@ -30,8 +31,11 @@ function useStore<S1 extends object, S2 extends object, R> ( stores: [S1, S2], s
 function useStore<S1 extends object, R> ( store: S1, selector: ( store: S1 ) => R, dependencies?: any[] ): R;
 function useStore<Store extends object, R> ( store: Store | Store[], selector: (( store: Store ) => R) | (( ...stores: Store[] ) => R) = SELECTOR_IDENTITY, dependencies: any[] = EMPTY_ARRAY ): Store | Store[] | R {
 
+  const stores = Utils.isStores ( store ) ? store : [store];
+
+  if ( !stores.length ) throw Errors.storesEmpty ();
+
   const mounted = useMounted (),
-        stores: Store[] = Array.isArray ( store ) && !isProxy ( store ) ? store : [store] as Store[],
         storesMemo = useMemo ( () => stores, stores ),
         selectorMemo = useCallback ( selector, dependencies ),
         selectorRef = useRef ( selectorMemo ), // Storing a ref so we won't have to resubscribe if the selector changes
@@ -58,15 +62,11 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
     const changesCounterMounting = ChangesCounters.getMultiple ( storesMemo );
 
-    for ( const [store, counter] of changesCounterMounting ) {
-
-      if ( counter <= ( changesCountersRendering.get ( store ) || 0 ) ) continue;
+    if ( !Utils.isEqual ( changesCountersRendering, changesCounterMounting ) ) {
 
       value = selectorRef.current.apply ( undefined, storesMemo );
 
       setState ({ value });
-
-      break;
 
     }
 

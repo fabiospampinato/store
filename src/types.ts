@@ -15,12 +15,10 @@ type DebugOptions = {
 
 type Disposer = () => void;
 
+type Listener<Args extends any[]> = ( ...args: Args ) => any;
+
 type Store<S extends object = object> = S;
-
-type ChangeListener<Args extends any[]> = ( ...args: Args ) => any;
-
-type SubscriberListener<Args extends any[] = []> = ( ...args: Args ) => any;
 
 /* EXPORT */
 
-export {DebugGlobal, DebugOptions, Disposer, Store, ChangeListener, SubscriberListener};
+export {DebugGlobal, DebugOptions, Disposer, Listener, Store};
