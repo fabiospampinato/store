@@ -1,7 +1,7 @@
 {
   "name": "@fabiospampinato/store",
   "description": "A beautifully-simple framework-agnostic modern state management library.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "x/index.js",
   "types": "x/index.d.ts",
   "scripts": {
