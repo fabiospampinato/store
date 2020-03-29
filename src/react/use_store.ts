@@ -72,13 +72,11 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
     /* SUBSCRIPTION */
 
-    const storesNr = storesMemo.length;
-
     return onChange ( storesMemo, ( ...stores ) => selectorRef.current.apply ( undefined, stores ), ( ...values ) => {
 
       if ( !mounted.current ) return;
 
-      const value = storesNr > 1 ? values : values[0];
+      const value = values.length > 1 ? values : values[0];
 
       setState ({ value });
 
