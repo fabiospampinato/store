@@ -65,11 +65,10 @@
   "dependencies": {
     "@types/react": "^16.9.23",
     "are-shallow-equal": "^1.1.1",
-    "clone-deep": "^4.0.1",
     "deep-object-diff": "^1.1.0",
     "is-primitive": "^3.0.1",
     "plain-object-is-empty": "^1.0.0",
-    "proxy-watcher": "^2.4.0",
+    "proxy-watcher": "^3.0.0",
     "react-use-mounted": "^1.0.0",
     "window-or-global": "^1.0.1"
   },
