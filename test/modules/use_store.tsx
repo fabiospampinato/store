@@ -19,9 +19,10 @@ describe ( 'useStore', it => {
 
   it.serial ( 'works with single stores', async t => {
 
-    const Apps = [AppSingleWithoutSelector, AppSingleWithSelector];
+    const Apps = [AppSingleWithoutSelector, AppSingleWithSelector],
+          renders = [[1, 2, 3], [1, 2, 3]];
 
-    for ( const App of Apps ) {
+    for ( const [index, App] of Apps.entries () ) {
 
       API.store.value = 0;
 
@@ -34,7 +35,7 @@ describe ( 'useStore', it => {
             click = selector => app.find ( selector ).simulate ( 'click' );
 
       t.is ( getValue (), '0' );
-      t.is ( rendersNr, 1 );
+      t.is ( rendersNr, renders[index][0] );
 
       click ( '#increment' );
       click ( '#increment' );
@@ -43,14 +44,14 @@ describe ( 'useStore', it => {
       await delay ( 100 );
 
       t.is ( getValue (), '3' );
-      t.is ( rendersNr, 2 );
+      t.is ( rendersNr, renders[index][1] );
 
       click ( '#decrement' );
 
       await delay ( 100 );
 
       t.is ( getValue (), '2' );
-      t.is ( rendersNr, 3 );
+      t.is ( rendersNr, renders[index][2] );
 
     }
 
@@ -58,9 +59,10 @@ describe ( 'useStore', it => {
 
   it.serial ( 'works with multiple stores', async t => {
 
-    const Apps = [AppMultipleWithoutSelector, AppMultipleWithSelector];
+    const Apps = [AppMultipleWithoutSelector, AppMultipleWithSelector],
+          renders = [[1, 2, 3, 4], [1, 1, 2, 3]];
 
-    for ( const App of Apps ) {
+    for ( const [index, App] of Apps.entries () ) {
 
       API.store.value = 0;
       API2.store.value = 0;
@@ -74,7 +76,7 @@ describe ( 'useStore', it => {
             click = selector => app.find ( selector ).simulate ( 'click' );
 
       t.is ( getValue (), '0' );
-      t.is ( rendersNr, 1 );
+      t.is ( rendersNr, renders[index][0] );
 
       click ( '#one-increment' );
       click ( '#one-increment' );
@@ -83,7 +85,7 @@ describe ( 'useStore', it => {
       await delay ( 100 );
 
       t.is ( getValue (), '0' );
-      t.is ( rendersNr, 2 );
+      t.is ( rendersNr, renders[index][1] );
 
       click ( '#one-increment' );
       click ( '#two-increment' );
@@ -91,7 +93,7 @@ describe ( 'useStore', it => {
       await delay ( 100 );
 
       t.is ( getValue (), '4' );
-      t.is ( rendersNr, 3 );
+      t.is ( rendersNr, renders[index][2] );
 
       click ( '#one-increment' );
       click ( '#two-increment' );
@@ -99,7 +101,7 @@ describe ( 'useStore', it => {
       await delay ( 100 );
 
       t.is ( getValue (), '10' );
-      t.is ( rendersNr, 4 );
+      t.is ( rendersNr, renders[index][3] );
 
     }
 

@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import areShallowEqual from 'are-shallow-equal';
+import * as isPrimitive from 'is-primitive';
 import {record} from 'proxy-watcher';
 import {EMPTY_ARRAY, SELECTOR_IDENTITY} from './consts';
 import ChangesSubscribers from './changes_subscribers';
@@ -41,7 +42,8 @@ function onChange<Store extends object, R> ( store: Store | Store[], selector: (
 
   const disposers: Disposer[] = [];
 
-  let rootsChangeAllCache: Map<Store, string[]> = new Map ();
+  let rootsChangeAllCache: Map<Store, string[]> = new Map (),
+      dataPrev = selector.apply ( undefined, stores ); // Fetching initial data
 
   const handler = () => {
 
@@ -50,10 +52,15 @@ function onChange<Store extends object, R> ( store: Store | Store[], selector: (
     let data;
 
     const rootsChangeAll = rootsChangeAllCache,
-          rootsGetAll = record ( stores, () => data = selector.apply ( undefined, stores ) ) as unknown as Map<any, string[]>, //TSC
-          isDataIdentity = ( storesNr === 1 ) ? data === stores[0] : areShallowEqual ( data, stores );
+          rootsGetAll = record ( stores, () => data = selector.apply ( undefined, stores ) ) as unknown as Map<any, string[]>; //TSC
 
     rootsChangeAllCache = new Map ();
+
+    if ( isPrimitive ( data ) && Object.is ( data, dataPrev ) ) return; // The selected primitive didn't actually change
+
+    dataPrev = data;
+
+    const isDataIdentity = ( storesNr === 1 ) ? data === stores[0] : areShallowEqual ( data, stores );
 
     if ( isDataIdentity ) return listener.apply ( undefined, stores );
 

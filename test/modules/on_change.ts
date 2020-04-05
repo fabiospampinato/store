@@ -161,19 +161,40 @@ describe ( 'onChange', it => {
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 2, 3] ); // The last `3` here is called unoptimally for performance reasons
+      t.deepEqual ( calls, [0, 1, 0, 2] );
 
       proxy.bar.deep.push ( 4 );
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 2, 3, 0, 2, 3] ); // The last `3` here is called unoptimally for performance reasons
+      t.deepEqual ( calls, [0, 1, 0, 2, 0, 2] );
 
       proxy.bar.deep[0] = 2;
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 2, 3, 0, 2, 3, 0, 2, 3] );
+      t.deepEqual ( calls, [0, 1, 0, 2, 0, 2, 0, 2, 3] );
+
+    });
+
+    it ( 'compares primitives', async t => {
+
+      const proxy = store ({ bool: true, number: 123, void: true }),
+            calls = [];
+
+      onChange ( proxy, state => state.bool, () => calls.push ( 1 ) );
+      onChange ( proxy, state => state.number, () => calls.push ( 2 ) );
+      onChange ( proxy, state => state.void, () => calls.push ( 3 ) );
+
+      proxy.bool = false;
+      proxy.number = 0;
+      proxy.bool = true;
+      proxy.number = 123;
+      proxy.void = undefined;
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [3] );
 
     });
 
@@ -441,37 +462,68 @@ describe ( 'onChange', it => {
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 3] ); // The last `3` here is called unoptimally for performance reasons
+      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2] );
 
       proxy2.bar['foo'] = true;
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 3, 0, 5, 6] ); // The last `3` here is called unoptimally for performance reasons
+      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 0, 5] );
 
       proxy1.bar.deep.push ( 4 );
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 3, 0, 5, 6, 0, 2, 3] ); // The last `3` here is called unoptimally for performance reasons
+      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 0, 5, 0, 2] );
 
       proxy2.bar.deep.push ( 4 );
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 3, 0, 5, 6, 0, 2, 3, 0, 5, 6] ); // The last `3` here is called unoptimally for performance reasons
+      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 0, 5, 0, 2, 0, 5] );
 
       proxy1.bar.deep[0] = 2;
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 3, 0, 5, 6, 0, 2, 3, 0, 5, 6, 0, 2, 3] );
+      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 0, 5, 0, 2, 0, 5, 0, 2, 3] );
 
       proxy2.bar.deep[0] = 2;
 
       await delay ( 100 );
 
-      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 3, 0, 5, 6, 0, 2, 3, 0, 5, 6, 0, 2, 3, 0, 5, 6] );
+      t.deepEqual ( calls, [0, 1, 0, 4, 0, 2, 0, 5, 0, 2, 0, 5, 0, 2, 3, 0, 5, 6] );
+
+    });
+
+    it ( 'compares primitives', async t => {
+
+      const proxy1 = store ({ bool: true, number: 123, void: true }),
+            proxy2 = store ({ bool: true, number: 123, void: true }),
+            calls = [];
+
+      onChange ( [proxy1, proxy2], ( proxy1, proxy2 ) => proxy1.bool, () => calls.push ( 1 ) );
+      onChange ( [proxy1, proxy2], ( proxy1, proxy2 ) => proxy1.number, () => calls.push ( 2 ) );
+      onChange ( [proxy1, proxy2], ( proxy1, proxy2 ) => proxy1.void, () => calls.push ( 3 ) );
+      onChange ( [proxy1, proxy2], ( proxy1, proxy2 ) => proxy2.bool, () => calls.push ( 4 ) );
+      onChange ( [proxy1, proxy2], ( proxy1, proxy2 ) => proxy2.number, () => calls.push ( 5 ) );
+      onChange ( [proxy1, proxy2], ( proxy1, proxy2 ) => proxy2.void, () => calls.push ( 6 ) );
+
+      proxy1.bool = false;
+      proxy1.number = 0;
+      proxy1.bool = true;
+      proxy1.number = 123;
+      proxy1.void = undefined;
+
+      proxy2.bool = false;
+      proxy2.number = 0;
+      proxy2.bool = true;
+      proxy2.number = 123;
+      proxy2.void = undefined;
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [3, 6] );
 
     });
 
