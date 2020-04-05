@@ -109,7 +109,28 @@ describe ( 'Scheduler', it => {
 
   });
 
-  it.serial ( 'is not susceptible to race conditions', async t => {
+  it.serial ( 'can trigger execution of queued functions scheduled while triggering', t => {
+
+    const calls = [];
+
+    let rescheduled = false;
+
+    function fn () {
+      calls.push ( 1 );
+      if ( rescheduled ) return;
+      rescheduled = true;
+      Scheduler.schedule ( fn );
+    }
+
+    Scheduler.schedule ( fn );
+    Scheduler.unschedule ();
+    Scheduler.trigger ();
+
+    t.deepEqual ( calls, [1, 1] );
+
+  });
+
+  it.serial ( 'is not susceptible to race conditions', t => {
 
     const calls = [];
 
@@ -128,10 +149,6 @@ describe ( 'Scheduler', it => {
     Scheduler.schedule ( fnRemove );
     Scheduler.schedule ( fnAdd );
     Scheduler.trigger ();
-
-    t.deepEqual ( calls, [1, 2] );
-
-    await delay ( 100 );
 
     t.deepEqual ( calls, [1, 2, 3] );
 

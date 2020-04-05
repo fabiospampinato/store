@@ -43,17 +43,21 @@ const Scheduler = {
 
     Scheduler.unschedule ();
 
-    if ( Scheduler.triggering ) return Scheduler.schedule ();
+    if ( Scheduler.triggering ) return;
 
     Scheduler.triggering = true;
 
-    const fns = Array.from ( Scheduler.queue.values () );
-
-    Scheduler.queue.clear ();
-
     Scheduler.batch ( () => {
 
-      for ( let i = 0, l = fns.length; i < l; i++ ) fns[i]();
+      while ( Scheduler.queue.size ) {
+
+        const fns = Array.from ( Scheduler.queue.values () );
+
+        Scheduler.queue.clear ();
+
+        for ( let i = 0, l = fns.length; i < l; i++ ) fns[i]();
+
+      }
 
     });
 
