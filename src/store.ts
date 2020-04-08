@@ -11,8 +11,6 @@ import Hooks from './hooks';
 
 function store<Store extends object> ( store: Store ): Store {
 
-  const changes = new ChangesSubscriber ();
-
   const [proxy] = watch ( store, paths => {
 
     Hooks.store.change.trigger ( proxy, paths );
@@ -20,6 +18,8 @@ function store<Store extends object> ( store: Store ): Store {
     changes.schedule ( paths );
 
   });
+
+  const changes = new ChangesSubscriber ( proxy );
 
   ChangesSubscribers.set ( proxy, changes );
 

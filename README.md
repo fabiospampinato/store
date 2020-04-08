@@ -191,6 +191,7 @@ These are all the currently available hooks:
 const Hooks = {
   store: {
     change: Hook, // Triggered whenever a store is mutated
+    changeBatch: Hook, // Triggered whenever a store is mutated (batched)
     new: Hook // Triggered whenever a new store is created. This hook is used internally for implementing `debug`
   }
 };

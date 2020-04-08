@@ -2,8 +2,10 @@
 /* IMPORT */
 
 import {EMPTY_ARRAY} from './consts';
+import Hooks from './hooks';
 import Subscriber from './subscriber';
 import Utils from './utils';
+import {Store} from './types';
 
 /* CHANGES SUBSCRIBER */
 
@@ -11,7 +13,18 @@ class ChangesSubscriber extends Subscriber<[string[]]> {
 
   /* VARIABLES */
 
+  protected store: Store;
   protected paths: string[] | undefined;
+
+  /* CONSTRUCTOR */
+
+  constructor ( store: Store ) {
+
+    super ();
+
+    this.store = store;
+
+  }
 
   /* API */
 
@@ -29,6 +42,8 @@ class ChangesSubscriber extends Subscriber<[string[]]> {
           roots = Utils.uniq ( Utils.paths.rootify ( paths ) );
 
     this.paths = undefined;
+
+    Hooks.store.changeBatch.trigger ( this.store, paths, roots );
 
     super.trigger ( roots );
 

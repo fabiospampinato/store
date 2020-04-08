@@ -12,6 +12,8 @@ const Hooks = {
 
     change: new Subscriber<[Store, string[]]> (),
 
+    changeBatch: new Subscriber<[Store, string[], string[]]> (),
+
     new: new Subscriber<[Store]> ()
 
   }
