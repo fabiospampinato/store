@@ -18,6 +18,38 @@ describe ( 'Hooks', it => {
 
   });
 
+  describe ( 'store.change', it => {
+
+    it ( 'triggers each time a change is detected', t => {
+
+      t.plan ( 5 );
+
+      const data = {
+        foo: true,
+        bar: [1, 2, { baz: true }]
+      };
+
+      const proxy = store ( data );
+
+      const results = [[proxy, ['foo']], [proxy, ['bar.0']]];
+
+      let callNr = 0;
+
+      Hooks.store.change.subscribe ( ( proxy, paths ) => {
+        t.deepEqual ( proxy, results[callNr][0] );
+        t.deepEqual ( paths, results[callNr][1] );
+        callNr++;
+      });
+
+      proxy.foo = false;
+      proxy.bar[0] = 0;
+
+      t.is ( callNr, 2 );
+
+    });
+
+  });
+
   describe ( 'store.new', it => {
 
     it ( 'triggers whenever a store is created', t => {
