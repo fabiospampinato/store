@@ -24,6 +24,7 @@ npm install --save store@npm:@fabiospampinato/store
 - Core
   - [`store`](#store)
   - [`isStore`](#isstore)
+  - [`isIdle`](#isidle)
   - [`onChange`](#onchange)
   - [`debug`](#debug)
   - [`Hooks`](#hooks)
@@ -68,6 +69,37 @@ import {store, isStore} from 'store';
 
 isStore ( store ( {} ) ); // => true
 isStore ( {} ); // => false
+```
+
+#### `isIdle`
+
+When no store is passed it checks if all known stores have no pending updates, i.e. some changes happened to them and at least one `onChange` listener has not been called yet.
+
+If a store is passed it checks only if the passed store has no pending updates.
+
+This is its interface:
+
+```ts
+function isIdle ( store?: Store ): boolean;
+```
+
+Example usage:
+
+```ts
+import {store, isIdle} from 'store';
+
+const proxy1 = store ( {} );
+const proxy2 = store ( {} );
+
+isIdle (); // => true
+isIdle ( proxy1 ); // => true
+isIdle ( proxy2 ); // => true
+
+proxy1.foo = true;
+
+isIdle (); // => false
+isIdle ( proxy1 ); // => false
+isIdle ( proxy2 ); // => true
 ```
 
 #### `onChange`

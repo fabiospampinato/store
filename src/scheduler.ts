@@ -7,6 +7,7 @@ const Scheduler = {
 
   queue: new Set<Function> (),
   triggering: false,
+  triggeringQueue: new Set<Function> (),
   triggerTimeoutId: -1,
 
   /* API */
@@ -51,11 +52,13 @@ const Scheduler = {
 
       while ( Scheduler.queue.size ) {
 
-        const fns = Array.from ( Scheduler.queue.values () );
+        Scheduler.triggeringQueue = new Set ( Scheduler.queue );
 
         Scheduler.queue.clear ();
 
-        for ( let i = 0, l = fns.length; i < l; i++ ) fns[i]();
+        for ( const fn of Scheduler.triggeringQueue ) fn ();
+
+        Scheduler.triggeringQueue.clear ();
 
       }
 
