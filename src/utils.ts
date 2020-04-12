@@ -32,7 +32,7 @@ const Utils = {
 
     if ( arr.length < 2 ) return arr;
 
-    return arr.filter ( ( ele, index, eles ) => eles.indexOf ( ele ) === index );
+    return Array.from ( new Set ( arr ).values () );
 
   },
 
