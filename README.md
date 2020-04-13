@@ -26,6 +26,7 @@ npm install --save store@npm:@fabiospampinato/store
   - [`isStore`](#isstore)
   - [`isIdle`](#isidle)
   - [`onChange`](#onchange)
+  - [`batch`](#batch)
   - [`debug`](#debug)
   - [`Hooks`](#hooks)
 - Extra/React
@@ -157,6 +158,48 @@ setTimeout ( CounterApp.increment, 100 ); // This will cause the remaining liste
 - ℹ️ Using a selector that retrieves only parts of the store will improve performance.
 - ℹ️ It's possible that the listener will be called even if the object returned by the selector, or the entire store, didn't actually change.
 - ℹ️ Calls to `listener`s are automatically coalesced and batched together for performance, so if you synchronously, i.e. within a single event loop tick, mutate a store multiple times and there's a listener listening for those changes that listener will only be called once.
+
+#### `batch`
+
+Synchronous mutations, i.e. mutations that happen within a single event loop tick, are batched and coalesced together automatically, if you sometimes also want to batch and coalesce mutations happening inside an asynchronous function or two arbitrary points in time you can use the `batch` function.
+
+This is its interface:
+
+```ts
+function batch<P extends Promise<any>> ( fn: () => P ): P;
+// Helper methods
+batch.start = function (): void;
+batch.stop = function (): void;
+```
+
+Example usage:
+
+```ts
+import {batch, store} from 'store';
+
+const myStore = store ( { foo: 123 } );
+
+// Function-based batching
+
+batch ( async () => {
+  myStore.foo = 0;
+  await someAsyncFunction ();
+  myStore.foo = 1;
+});
+
+// Manual batching
+
+batch.start ();
+for ( const nr of [1, 2, 3, 4, 5] ) {
+  myStore.foo = nr;
+  await someAsyncFunction ();
+}
+batch.stop ();
+```
+
+- ℹ️ This function is critical for performance when performing a very large number of mutations in an asynchronous way.
+- ℹ️ When batching and coalescing asynchronous mutations by passing a function to `batch` everything is taken care of for you: if the passed function throws batching it stopped automatically, nested `batch` calls are not a problem either.
+- ℹ️ When batching and coalescing asynchronous mutations manually using `batch.start` and `batch.stop` you have to make sure that `batch.stop` is always called the same number of times that `batch.start` was called, or batching will never stop. So make sure that for instance thrown errors or early exits are not an issue.
 
 #### `debug`
 

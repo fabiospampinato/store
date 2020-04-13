@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import batch from './batch';
 import debug from './debug';
 import store from './store';
 import isIdle from './is_idle';
@@ -10,4 +11,4 @@ import Hooks from './hooks';
 
 /* EXPORT */
 
-export {debug, store, isIdle, isStore, onChange, Hooks};
+export {batch, debug, store, isIdle, isStore, onChange, Hooks};

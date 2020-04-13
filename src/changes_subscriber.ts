@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import batch from './batch';
 import {EMPTY_ARRAY} from './consts';
 import Hooks from './hooks';
 import Subscriber from './subscriber';
@@ -15,6 +16,7 @@ class ChangesSubscriber extends Subscriber<[string[]]> {
 
   protected store: Store;
   protected paths: string[] | undefined;
+  protected _sschedule = super.schedule.bind ( this );
 
   /* CONSTRUCTOR */
 
@@ -31,6 +33,8 @@ class ChangesSubscriber extends Subscriber<[string[]]> {
   schedule ( paths: string[] ): void {
 
     this.paths = this.paths ? this.paths.concat ( paths ) : paths;
+
+    if ( batch.isActive () ) return batch.schedule ( this._sschedule );
 
     return super.schedule ();
 
