@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import areShallowEqual from 'are-shallow-equal';
 import {useCallback, useDebugValue, useEffect, useMemo, useRef, useState} from 'react';
 import useMounted from 'react-use-mounted';
 import ChangesCounters from '../changes_counters';
@@ -36,7 +37,8 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
   if ( !stores.length ) throw Errors.storesEmpty ();
 
   const mounted = useMounted (),
-        storesMemo = useMemo ( () => stores, stores ),
+        storesRef = useRef<Store[] | undefined> (),
+        storesMemo = storesRef.current = ( storesRef.current && areShallowEqual ( storesRef.current, stores ) ) ? storesRef.current : stores,
         selectorMemo = useCallback ( selector, dependencies ),
         selectorRef = useRef ( selectorMemo ), // Storing a ref so we won't have to resubscribe if the selector changes
         changesCountersRendering = useMemo ( () => ChangesCounters.getMultiple ( storesMemo ), [storesMemo] ), // Storing the number of changes at rendering time, in order to understand if changes happened before now and commit time
