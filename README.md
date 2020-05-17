@@ -214,7 +214,7 @@ batch.stop ();
 ```
 
 - ℹ️ This function is critical for performance when performing a very large number of mutations in an asynchronous way.
-- ℹ️ When batching and coalescing asynchronous mutations by passing a function to `batch` everything is taken care of for you: if the passed function throws batching it stopped automatically, nested `batch` calls are not a problem either.
+- ℹ️ When batching and coalescing asynchronous mutations by passing a function to `batch` everything is taken care of for you: if the passed function throws batching is stopped automatically, nested `batch` calls are not a problem either.
 - ℹ️ When batching and coalescing asynchronous mutations manually using `batch.start` and `batch.stop` you have to make sure that `batch.stop` is always called the same number of times that `batch.start` was called, or batching will never stop. So make sure that for instance thrown errors or early exits are not an issue.
 
 #### `debug`
@@ -302,7 +302,7 @@ disposer ();
 
 If you need some more hooks for your Store plugin let me know and I'll make sure to add them.
 
-We currently don't have an official "Store DevTools Extension", but it would be super cool to have one. Perhaps it could provide a GUI for [`debug`](#debug)'s functionalities, and/or implement other features like time-travel debugging. If you're interesting in developing this please do get in touch! 😃
+We currently don't have an official "Store DevTools Extension", but it would be super cool to have one. Perhaps it could provide a GUI for [`debug`](#debug)'s functionalities, and/or implement other features like time-travel debugging. If you're interested in developing this please do get in touch! 😃
 
 ### Extra/React
 
@@ -400,7 +400,7 @@ const CounterComponent3 = () => {
 
 #### `useStores`
 
-`useStores` is just an alias for `useStore`, this alias is provided in case passing multiple stores to an hook called `useStore` doesn't feel quite right for you.
+`useStores` is just an alias for `useStore`, this alias is provided in case passing multiple stores to an hook called `useStore` doesn't feel quite right to you.
 
 Example import:
 
