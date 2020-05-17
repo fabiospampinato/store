@@ -116,18 +116,24 @@ function onChange ( store: Store, listener: ( data: Store ) => any ): Disposer;
 function onChange ( stores: Store[], listener: ( ...data: Store[] ) => any ): Disposer;
 // Single store, with selector, listen to only changes that cause the value returned by the selector to change
 function onChange ( store: Store, selector: ( store: Store ) => Data, listener: ( data: Data ) => any ): Disposer;
+// Single store, with selector, with comparator, listen to only changes that cause the value returned by the selector to change and the comparator to return true
+function onChange ( store: Store, selector: ( store: Store ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, listener: ( data: Data ) => any ): Disposer;
 // Multiple stores, with selector, listen to only changes that cause the value returned by the selector to change
 function onChange ( stores: Store[], selector: ( ...stores: Store[] ) => Data, listener: ( data: Data ) => any ): Disposer;
+// Multiple stores, with selector, with comparator, listen to only changes that cause the value returned by the selector to change and the comparator to return true
+function onChange ( stores: Store[], selector: ( ...stores: Store[] ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, listener: ( data: Data ) => any ): Disposer;
 ```
 
 - The `store`/`stores` argument is either a single proxied object retuned by the [`store`](#store) function or an array of those.
 - The `listener` argument is the function that will be called when a change to the provided stores occurs. It will be called with the value returned by the `selector`, if a selector was provided, or with all the provided stores as its arguments otherwise.
 - The `selector` optional argument is a function that computes some value that will be passed to the listener as its first argument. It's called with all the provided stores as its arguments.
+- The `comparator` optional argument is a function that checks for equality between the previous value returned by the selector and the current one.
 - The return value is a disposer, a function that when called will terminate this specific listening operation.
 
 Example usage:
 
 ```ts
+import areShallowEqual from 'are-shallow-equal';
 import {store, onChange} from 'store';
 
 const CounterApp = {
@@ -149,6 +155,12 @@ const disposer2 = onChange ( CounterApp.store, store => store.value % 2 === 0, i
   console.log ( 'Is the new value even?', isEven );
 });
 
+// With selector, with comparator
+
+const disposer = onChange ( CounterApp.store, store => ({ sqrt: Math.sqrt ( store.value ) }), areShallowEqual, ({ sqrt }) => {
+  console.log ( 'The new square root is:', sqrt );
+});
+
 CounterApp.increment (); // This will cause a mutation, causing the listeners to be called
 CounterApp.increment (); // This will cause another mutation, but the listeners will still be called once as these mutations are occurring in a single event loop tick
 
@@ -158,6 +170,10 @@ setTimeout ( CounterApp.increment, 100 ); // This will cause the remaining liste
 - ℹ️ Using a selector that retrieves only parts of the store will improve performance.
 - ℹ️ It's possible that the listener will be called even if the object returned by the selector, or the entire store, didn't actually change.
 - ℹ️ Calls to `listener`s are automatically coalesced and batched together for performance, so if you synchronously, i.e. within a single event loop tick, mutate a store multiple times and there's a listener listening for those changes that listener will only be called once.
+- ℹ️ Using a comparator can improve performance if your selector only selects a small part of a large object.
+  - ℹ️ The comparator is not called if the library is certain that the value returned by the selector did or didn't change.
+    - ℹ️ As a consequence of this the comparator is never called with primitive values.
+  - ℹ️ When using a comparator the selector should return a new object, not one that might get mutated, or the comparator will effectively get called with the same objects.
 
 #### `batch`
 
@@ -305,18 +321,24 @@ function useStore ( store: Store ): Store;
 function useStore ( stores: Store[] ): Store[];
 // Single store, with selector, re-render only after changes that cause the value returned by the selector to change
 function useStore ( store: Store, selector: ( store: Store ) => Data, dependencies: ReadonlyArray<any> = [] ): Data;
+// Single store, with selector, with comparator, re-render only after changes that cause the value returned by the selector to change and the comparator to return true
+function useStore ( store: Store, selector: ( store: Store ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, dependencies: ReadonlyArray<any> = [] ): Data;
 // Multiple stores, with selector, re-render only after changes that cause the value returned by the selector to change
 function useStore ( stores: Store[], selector: ( ...args: Store[] ) => Data, dependencies: ReadonlyArray<any> = [] ): Data;
+// Multiple stores, with selector, with comparator, re-render only after changes that cause the value returned by the selector to change and the comparator to return true
+function useStore ( stores: Store[], selector: ( ...args: Store[] ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, dependencies: ReadonlyArray<any> = [] ): Data;
 ```
 
 - The `store`/`stores` argument is either a single proxied object retuned by the [`store`](#store) function or an array of those.
 - The `selector` optional argument if a function that computes some value that will be the return value of the hook. It's called with all the passed stores as its arguments.
+- The `comparator` optional argument is a function that checks for equality between the previous value returned by the selector and the current one.
 - The `dependencies` optional argument is an array of dependencies used to inform React about any objects your selector function will reference from outside of its innermost scope, ensuring the selector gets called again if any of those change.
 - The return value is whatever `selector` returns, if a selector was provided, or the entire store if only one store was provided, or the entire array of stores otherwise.
 
 Example usage:
 
 ```tsx
+import areShallowEqual from 'are-shallow-equal';
 import {store, onChange} from 'store';
 import {useStore} from 'store/x/react';
 
@@ -351,6 +373,19 @@ const CounterComponent2 = () => {
     </div>
   )
 };
+
+// With selector, with comparator
+
+const CounterComponent3 = () => {
+  const {sqrt} = useStore ( ConunterApp.store, store => ({ sqrt: Math.sqrt ( store.value ) }), areShallowEqual );
+  return (
+    <div>
+      <div>The square root is: {sqrt}</div>
+      <button onClick={CounterApp.increment}>Increment</button>
+      <button onClick={CounterApp.decrement}>Decrement</button>
+    </div>
+  )
+};
 ```
 
 - ℹ️ You basically just need to wrap the parts of your component that access any value from any store in a `useStore` hook, in order to make the component re-render whenever any of the retireved values change.
@@ -358,6 +393,10 @@ const CounterComponent2 = () => {
 - ℹ️ Using a selector that retrieves only parts of the store will improve performance.
 - ℹ️ It's possible that the component will be re-rendered even if the object returned by the selector, or the entire store, didn't actually change.
 - ℹ️ Re-renders are automatically coalesced and batched together for performance, so if synchronously, i.e. within a single event loop tick, the stores you're listening to are mutated multiple times the related components will only be re-rendered once.
+- ℹ️ Using a comparator can improve performance if your selector only selects a small part of a large object.
+  - ℹ️ The comparator is not called if the library is certain that the value returned by the selector did or didn't change.
+    - ℹ️ As a consequence of this the comparator is never called with primitive values.
+  - ℹ️ When using a comparator the selector should return a new object, not one that might get mutated, or the comparator will effectively get called with the same objects.
 
 #### `useStores`
 

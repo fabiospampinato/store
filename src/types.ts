@@ -1,6 +1,8 @@
 
 /* TYPES */
 
+type Primitive = null | undefined | string | number | boolean | symbol | bigint;
+
 type DebugGlobal = {
   stores: Store[],
   log: () => void
@@ -21,4 +23,4 @@ type Store<S extends object = object> = S;
 
 /* EXPORT */
 
-export {DebugGlobal, DebugOptions, Disposer, Listener, Store};
+export {Primitive, DebugGlobal, DebugOptions, Disposer, Listener, Store};

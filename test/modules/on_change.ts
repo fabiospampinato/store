@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {describe} from 'ava-spec';
+import areShallowEqual from 'are-shallow-equal';
 import delay from 'promise-resolve-timeout';
 import {onChange, store} from '../../x';
 
@@ -129,6 +130,110 @@ describe ( 'onChange', it => {
       await delay ( 100 );
 
       t.deepEqual ( calls, [1, 2, 3] );
+
+    });
+
+    it ( 'supports an optional comparator', async t => {
+
+      const proxy = store ({ foo: 123, bar: { deep: [1, 2, 3] }, baz: { title: 'Title', desc: 'Description' } }),
+            calls = [];
+
+      function listener1 ( data ) {
+        t.true ( typeof data === 'number' );
+        calls.push ( 1 );
+      }
+
+      function comparator1a ( dataPrev, dataNext ) {
+        t.fail ();
+        calls.push ( '1a' );
+        return false;
+      }
+
+      function listener2 ( data ) {
+        t.is ( data, proxy.foo );
+        calls.push ( 2 );
+      }
+
+      function comparator2a ( dataPrev, dataNext ) {
+        t.fail ();
+        calls.push ( '2a' );
+        return false;
+      }
+
+      function listener3 ( data ) {
+        t.deepEqual ( data, proxy.bar );
+        calls.push ( 3 );
+      }
+
+      function comparator3a ( dataPrev, dataNext ) {
+        t.deepEqual ( dataPrev, dataNext );
+        calls.push ( '3a' );
+        return true;
+      }
+
+      function comparator3b ( dataPrev, dataNext ) {
+        t.deepEqual ( dataPrev, dataNext );
+        calls.push ( '3b' );
+        return false;
+      }
+
+      function listener4 ( data ) {
+        t.deepEqual ( data, { title: 'Title' } );
+        calls.push ( 4 );
+      }
+
+      function comparator4a ( dataPrev, dataNext ) {
+        t.deepEqual ( dataPrev, dataNext );
+        calls.push ( '4a' );
+        return areShallowEqual ( dataPrev, { title: 'Title' } );
+      }
+
+      function listener5 ( data ) {
+        t.deepEqual ( data, { title: proxy.baz.title, desc: proxy.baz.desc } );
+        calls.push ( 5 );
+      }
+
+      function comparator5a ( dataPrev, dataNext ) {
+        calls.push ( '5a' );
+        return areShallowEqual ( dataPrev, dataNext );
+      }
+
+      onChange ( proxy, () => Math.random (), comparator1a, listener1 );
+      onChange ( proxy, data => data.foo, comparator2a, listener2 );
+      onChange ( proxy, data => data.bar, comparator3a, listener3 );
+      onChange ( proxy, data => data.bar, comparator3b, listener3 );
+      onChange ( proxy, data => ({ title: data.baz.title }), comparator4a, listener4 );
+      onChange ( proxy, data => ({ title: data.baz.title, desc: data.baz.desc }), comparator5a, listener5 );
+
+      proxy['qux'] = true;
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [1] );
+
+      proxy.foo = 1234;
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [1, 1, 2] );
+
+      proxy.bar['foo'] = true;
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [1, 1, 2, 1, '3a', '3b', 3] );
+
+      proxy.baz.desc += '2';
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [1, 1, 2, 1, '3a', '3b', 3, 1, '4a', '5a', 5] );
+
+      proxy.baz['extra'] = 'foo';
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [1, 1, 2, 1, '3a', '3b', 3, 1, '4a', '5a', 5, 1, '4a', '5a'] );
 
     });
 
@@ -417,6 +522,8 @@ describe ( 'onChange', it => {
       t.deepEqual ( calls, [1, 2, 3, 1, 4, 5] );
 
     });
+
+    //TODO: Add 'supports an optional comparator' test
 
     it ( 'doesn\'t schedule a call to the listener if the return value of the selector didn\'t actually change', async t => {
 
