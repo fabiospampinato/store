@@ -74,7 +74,7 @@ isStore ( {} ); // => false
 
 #### `isIdle`
 
-When no store is passed it checks if all known stores have no pending updates, i.e. some changes happened to them and at least one `onChange` listener has not been called yet.
+When no store is passed to it it checks if all known stores have no pending updates, i.e. some changes happened to them and at least one `onChange` listener has not been called yet.
 
 If a store is passed it checks only if the passed store has no pending updates.
 
@@ -112,14 +112,19 @@ This is its interface:
 ```ts
 // Single store, without selector, listen to all changes to the store
 function onChange ( store: Store, listener: ( data: Store ) => any ): Disposer;
+
 // Multiple stores, without selector, listen to all changes to any store
 function onChange ( stores: Store[], listener: ( ...data: Store[] ) => any ): Disposer;
+
 // Single store, with selector, listen to only changes that cause the value returned by the selector to change
 function onChange ( store: Store, selector: ( store: Store ) => Data, listener: ( data: Data ) => any ): Disposer;
+
 // Single store, with selector, with comparator, listen to only changes that cause the value returned by the selector to change and the comparator to return true
 function onChange ( store: Store, selector: ( store: Store ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, listener: ( data: Data ) => any ): Disposer;
+
 // Multiple stores, with selector, listen to only changes that cause the value returned by the selector to change
 function onChange ( stores: Store[], selector: ( ...stores: Store[] ) => Data, listener: ( data: Data ) => any ): Disposer;
+
 // Multiple stores, with selector, with comparator, listen to only changes that cause the value returned by the selector to change and the comparator to return true
 function onChange ( stores: Store[], selector: ( ...stores: Store[] ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, listener: ( data: Data ) => any ): Disposer;
 ```
@@ -183,6 +188,7 @@ This is its interface:
 
 ```ts
 function batch<P extends Promise<any>> ( fn: () => P ): P;
+
 // Helper methods
 batch.start = function (): void;
 batch.stop = function (): void;
@@ -317,14 +323,19 @@ This is its interface:
 ```ts
 // Single store, without selector, re-render after any change to the store
 function useStore ( store: Store ): Store;
+
 // Multiple stores, without selector, re-render after any change to any store
 function useStore ( stores: Store[] ): Store[];
+
 // Single store, with selector, re-render only after changes that cause the value returned by the selector to change
 function useStore ( store: Store, selector: ( store: Store ) => Data, dependencies: ReadonlyArray<any> = [] ): Data;
+
 // Single store, with selector, with comparator, re-render only after changes that cause the value returned by the selector to change and the comparator to return true
 function useStore ( store: Store, selector: ( store: Store ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, dependencies: ReadonlyArray<any> = [] ): Data;
+
 // Multiple stores, with selector, re-render only after changes that cause the value returned by the selector to change
 function useStore ( stores: Store[], selector: ( ...args: Store[] ) => Data, dependencies: ReadonlyArray<any> = [] ): Data;
+
 // Multiple stores, with selector, with comparator, re-render only after changes that cause the value returned by the selector to change and the comparator to return true
 function useStore ( stores: Store[], selector: ( ...args: Store[] ) => Data, comparator: ( dataPrev: Data, dataNext: Data ) => boolean, dependencies: ReadonlyArray<any> = [] ): Data;
 ```
@@ -415,13 +426,13 @@ import {useStores} from 'store/x/react';
 I'll personally use this library over more popular ones for a few reasons:
 
 - **Simpler APIs**: almost all other state management libraries I've encountered have APIs that don't resonate with me, often they feel unnecessarily bloated. I don't want to write "actions", I don't want to write "reducers", I don't want to litter my code with decorators or unnecessary boilerplate.
-- **Fewer footguns**: many other libraries I've encountered have multiple footguns to be aware of, some which may cause hard-to-debug bugs. With Store you won't update your stores incorrectly once you have wrapped them with [`store`](#store), you won't have to deal with asynchronous updates, and you won't have to carefully update your stores in an immutable fashion.
+- **Fewer footguns**: many other libraries I've encountered have multiple footguns to be aware of, some which may cause hard-to-debug bugs. With Store you won't update your stores incorrectly once you have wrapped them with [`store`](#store), you won't have to specially handle asynchronicity, and you won't have to carefully update your stores in an immutable fashion.
 - **Fewer restrictions**: most other libraries require you to structure your stores in a specific way, update them with library-specific APIs, perhaps require the usage of classes, and/or are tied to a specific UI framework. Store is more flexible in this regard: your stores are just proxied objects, you can manipulate them however you like, adopt a more functional coding style if you prefer, and the library isn't tied to any specific UI framework, in fact you can use it to manage your purely server-side state too.
 - **Easy type-safety**: some libraries don't play very well with TypeScript and/or require you to manually write some types, Store just works with no extra effort.
 
 ### Why not using Store?
 
-You might not want to use Store if: the design choices I made don't resonate with you, you need something more battle-tested, you need to support platforms where [`Proxy` isn't available](https://caniuse.com/#search=proxy), or you need the absolute maximum performance from your state management library since you know that will be your bottleneck.
+You might not want to use Store if: the design choices I made don't resonate with you, you need something more battle-tested, you need to support some of the ~5% of the outdated browsers where [`Proxy` isn't available](https://caniuse.com/#search=proxy), or you need the absolute maximum performance from your state management library since you know that will be your bottleneck, which is very unlikely.
 
 ## License
 
