@@ -525,6 +525,28 @@ describe ( 'onChange', it => {
 
     //TODO: Add 'supports an optional comparator' test
 
+    it ( 'doesn\'t forget previously mutated roots in non flushed changes', async t => {
+
+      const proxy1 = store ({ foo: 123, bar: { deep: [1, 2, 3] } }),
+            proxy2 = store ({ foo: 123, bar: { deep: [1, 2, 3] } }),
+            calls = [];
+
+      function listener ( data ) {
+        t.is ( data, proxy1.bar.deep );
+        calls.push ( 1 );
+      }
+
+      onChange ( proxy1, () => proxy1.foo = 0 );
+      onChange ( [proxy1, proxy2], proxy1 => proxy1.bar.deep, listener );
+
+      proxy1.bar.deep = [1];
+
+      await delay ( 100 );
+
+      t.deepEqual ( calls, [1] );
+
+    });
+
     it ( 'doesn\'t schedule a call to the listener if the return value of the selector didn\'t actually change', async t => {
 
       const proxy1 = store ({ foo: 123, bar: { deep: [1, 2, 3] } }),

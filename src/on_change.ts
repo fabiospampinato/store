@@ -125,7 +125,17 @@ function onChange<Store extends object, R> ( store: Store | Store[], selector: (
 
     const disposer = changes.subscribe ( rootsChange => {
 
-      rootsChangeAllCache.set ( store, rootsChange );
+      const rootsChangePrev = rootsChangeAllCache.get ( store );
+
+      if ( rootsChangePrev ) {
+
+        rootsChangePrev.push ( ...rootsChange );
+
+      } else {
+
+        rootsChangeAllCache.set ( store, rootsChange );
+
+      }
 
       if ( storesNr === 1 ) return handler ();
 
