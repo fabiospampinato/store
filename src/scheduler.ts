@@ -20,6 +20,8 @@ const Scheduler = {
 
     if ( Scheduler.triggering ) return;
 
+    if ( !Scheduler.queue.size ) return;
+
     Scheduler.triggerTimeoutId = setTimeout ( Scheduler.trigger );
 
   },
@@ -47,6 +49,8 @@ const Scheduler = {
     Scheduler.unschedule ();
 
     if ( Scheduler.triggering ) return;
+
+    if ( !Scheduler.queue.size ) return;
 
     Scheduler.triggering = true;
 
