@@ -18,6 +18,8 @@ const Scheduler = {
 
     if ( Scheduler.triggerTimeoutId !== -1 ) return;
 
+    if ( Scheduler.triggering ) return;
+
     Scheduler.triggerTimeoutId = setTimeout ( Scheduler.trigger );
 
   },
