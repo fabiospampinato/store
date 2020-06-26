@@ -16,7 +16,7 @@ function isIdle<Store extends object> ( store?: Store ): boolean {
 
     if ( !changes ) throw Errors.storeNotFound ();
 
-    return !Scheduler.queue.has ( changes['_trigger'] ) && !Scheduler.triggeringQueue.has ( changes['_trigger'] );
+    return !Scheduler.queue.has ( changes['_trigger'] ) && !Scheduler.triggeringQueue.includes ( changes['_trigger'] );
 
   } else {
 
