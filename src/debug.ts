@@ -4,8 +4,8 @@
 import isEmptyObject from 'plain-object-is-empty';
 import {target} from 'proxy-watcher';
 import ProxyWatcherUtils from 'proxy-watcher/dist/utils';
-import * as global from 'window-or-global';
 import ChangesSubscribers from './changes_subscribers';
+import {GLOBAL} from './consts';
 import Errors from './errors';
 import Hooks from './hooks';
 import Utils from './utils';
@@ -22,11 +22,11 @@ const defaultOptions: DebugOptions = {
 
 function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
 
-  if ( global.STORE ) return global.STORE;
+  if ( GLOBAL['STORE'] ) return GLOBAL['STORE'];
 
   options = Object.assign ( {}, debug.defaultOptions, options );
 
-  const STORE = global.STORE = {
+  const STORE = GLOBAL['STORE'] = {
     stores: [] as Store[], //FIXME: This shouldn't store a strong reference to stores, but also a WeakSet doesn't allow to retrieve all of its values...
     log: () => {
       STORE.stores.forEach ( store => {
