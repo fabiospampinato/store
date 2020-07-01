@@ -61,8 +61,7 @@ function debug ( options: Partial<DebugOptions> = {} ): DebugGlobal {
 
           if ( options.logChangesDiff ) {
 
-            const {detailedDiff} = require ( 'deep-object-diff' ),
-                  {added, updated, deleted} = detailedDiff ( storePrev, storeNext );
+            const {added, updated, deleted} = ProxyWatcherUtils.diff ( storePrev, storeNext );
 
             if ( !isEmptyObject ( added ) ) {
               console.log ( 'Added' );

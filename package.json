@@ -65,10 +65,9 @@
   "dependencies": {
     "@types/react": "^16.9.41",
     "are-shallow-equal": "^1.1.1",
-    "deep-object-diff": "^1.1.0",
     "is-primitive": "^3.0.1",
     "plain-object-is-empty": "^1.0.0",
-    "proxy-watcher": "^3.0.5",
+    "proxy-watcher": "^3.1.0",
     "react-use-mounted": "^1.0.0"
   },
   "peerDependencies": {
