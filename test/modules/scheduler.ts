@@ -11,11 +11,10 @@ describe ( 'Scheduler', it => {
 
   it.beforeEach ( () => {
 
-    clearTimeout ( Scheduler.triggerTimeoutId );
+    Scheduler.unschedule ()
 
     Scheduler.queue = new Set ();
     Scheduler.triggering = false;
-    Scheduler.triggerTimeoutId = -1;
 
   });
 

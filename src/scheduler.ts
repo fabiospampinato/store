@@ -8,7 +8,9 @@ const Scheduler = {
   queue: new Set<Function> (),
   triggering: false,
   triggeringQueue: <Function[]> [],
-  triggerTimeoutId: -1,
+  triggerId: -1 as any, //TSC
+  triggerClear: typeof clearImmediate === 'function' ? clearImmediate : clearTimeout,
+  triggerSet: typeof setImmediate === 'function' ? setImmediate : setTimeout,
 
   /* API */
 
@@ -16,13 +18,19 @@ const Scheduler = {
 
     if ( fn ) Scheduler.queue.add ( fn );
 
-    if ( Scheduler.triggerTimeoutId !== -1 ) return;
+    if ( Scheduler.triggerId !== -1 ) return;
 
     if ( Scheduler.triggering ) return;
 
     if ( !Scheduler.queue.size ) return;
 
-    Scheduler.triggerTimeoutId = setTimeout ( Scheduler.trigger );
+    Scheduler.triggerId = Scheduler.triggerSet ( () => {
+
+      Scheduler.triggerId = -1;
+
+      Scheduler.trigger  ();
+
+    }, 0 );
 
   },
 
@@ -30,11 +38,11 @@ const Scheduler = {
 
     if ( fn ) Scheduler.queue.delete ( fn );
 
-    if ( Scheduler.triggerTimeoutId === -1 ) return;
+    if ( Scheduler.triggerId === -1 ) return;
 
-    clearTimeout ( Scheduler.triggerTimeoutId );
+    Scheduler.triggerClear ( Scheduler.triggerId );
 
-    Scheduler.triggerTimeoutId = -1;
+    Scheduler.triggerId = -1;
 
   },
 
