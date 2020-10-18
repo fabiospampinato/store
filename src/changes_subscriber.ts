@@ -32,7 +32,7 @@ class ChangesSubscriber extends Subscriber<[string[]]> {
 
   schedule ( paths: string[] ): void {
 
-    this.paths = this.paths ? this.paths.concat ( paths ) : paths;
+    this.paths ? this.paths.push ( ...paths ) : ( this.paths = paths.slice () );
 
     if ( batch.isActive () ) return batch.schedule ( this._sschedule );
 
