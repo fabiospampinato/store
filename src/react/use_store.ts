@@ -65,7 +65,7 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
         comparatorRef = useRef ( comparatorMemo ), // Storing a ref so we won't have to resubscribe if the comparator changes
         changesCountersRendering = useMemo ( () => ChangesCounters.getMultiple ( storesMemo ), [storesMemo] ), // Storing the number of changes at rendering time, in order to understand if changes happened before now and commit time
         valueRef = useRef<R> ( undefined as any ), // Using a ref in order not to trigger *any* unnecessary re-renders //TSC
-        [updateId, setUpdateId] = useState<symbol> (), // Dummy state used for triggering updates
+        setUpdateId = useState<symbol> ()[1], // Dummy state used for triggering updates
         forceUpdate = useCallback ( () => setUpdateId ( Symbol () ), [] );
 
   if ( storesRef.current !== storesMemo || selectorRef.current !== selectorMemo || comparatorRef.current !== comparatorMemo ) {
