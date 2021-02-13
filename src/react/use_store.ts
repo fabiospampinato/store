@@ -58,28 +58,33 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
   const mounted = useMounted (),
         storesRef = useRef<Store[] | undefined> (),
-        storesMemo = storesRef.current = ( storesRef.current && areShallowEqual ( storesRef.current, stores ) ) ? storesRef.current : stores,
+        storesMemo = ( storesRef.current && areShallowEqual ( storesRef.current, stores ) ) ? storesRef.current : stores,
         selectorMemo = useCallback ( selector, dependencies ),
         selectorRef = useRef ( selectorMemo ), // Storing a ref so we won't have to resubscribe if the selector changes
         comparatorMemo = useCallback ( comparator as any, dependencies ), //TSC
         comparatorRef = useRef ( comparatorMemo ), // Storing a ref so we won't have to resubscribe if the comparator changes
         changesCountersRendering = useMemo ( () => ChangesCounters.getMultiple ( storesMemo ), [storesMemo] ), // Storing the number of changes at rendering time, in order to understand if changes happened before now and commit time
-        [state, setState] = useState ( () => ({ value: selectorMemo.apply ( undefined, storesMemo ) }) ); // Using an object so a re-render is triggered even if `value` is mutated (effectively remaining the same object as far as JS is concerned)
+        valueRef = useRef<R> ( undefined as any ), // Using a ref in order not to trigger *any* unnecessary re-renders //TSC
+        [updateId, setUpdateId] = useState<symbol> (), // Dummy state used for triggering updates
+        forceUpdate = useCallback ( () => setUpdateId ( Symbol () ), [] );
 
-  let {value} = state;
+  if ( storesRef.current !== storesMemo || selectorRef.current !== selectorMemo || comparatorRef.current !== comparatorMemo ) {
 
-  if ( selectorRef.current !== selectorMemo || comparatorRef.current !== comparatorMemo ) {
-
+    storesRef.current = storesMemo;
     selectorRef.current = selectorMemo;
-    comparatorRef.current !== comparatorMemo;
+    comparatorRef.current = comparatorMemo;
 
-    value = selectorMemo.apply ( undefined, storesMemo );
+    const value = selectorMemo.apply ( undefined, storesMemo );
 
-    setState ({ value });
+    if ( !Object.is ( value, valueRef.current ) ) {
+
+      valueRef.current = value;
+
+    }
 
   }
 
-  useDebugValue ( value );
+  useDebugValue ( valueRef.current );
 
   useEffect ( () => {
 
@@ -89,9 +94,15 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
     if ( !Utils.isEqual ( changesCountersRendering, changesCounterMounting ) ) {
 
-      value = selectorRef.current.apply ( undefined, storesMemo );
+      const value = selectorRef.current.apply ( undefined, storesMemo );
 
-      setState ({ value });
+      if ( !Object.is ( value, valueRef.current ) ) {
+
+        valueRef.current = value;
+
+        forceUpdate ();
+
+      }
 
     }
 
@@ -103,13 +114,15 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
       const value = values.length > 1 ? values : values[0];
 
-      setState ({ value });
+      valueRef.current = value;
+
+      forceUpdate ();
 
     });
 
   }, [storesMemo, changesCountersRendering] );
 
-  return value;
+  return valueRef.current;
 
 }
 

@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import * as React from 'react';
+import {useCallback, useState} from 'react';
 import {store} from '../../x';
 import {useStore} from '../../x/react';
 
@@ -71,6 +72,22 @@ const AppMultipleWithSelector = ({ rendering }) => {
   );
 };
 
+const SWAP1 = store ({ value: 0 });
+const SWAP2 = store ({ value: 100 });
+
+const AppWithSwappedStore = ({ rendering }) => {
+  rendering ();
+  const [store, setStore] = useState ( SWAP1 );
+  const value = useStore ( store, store => store.value );
+  const swap = useCallback ( () => setStore ( SWAP2 ), [] );
+  return (
+    <div id="counter">
+      <div id="value">{value}</div>
+      <div id="swap" onClick={swap}>Swap</div>
+    </div>
+  );
+};
+
 /* EXPORT */
 
-export {API, API2, AppSingleWithoutSelector, AppSingleWithSelector, AppMultipleWithoutSelector, AppMultipleWithSelector};
+export {API, API2, SWAP1, SWAP2, AppSingleWithoutSelector, AppSingleWithSelector, AppMultipleWithoutSelector, AppMultipleWithSelector, AppWithSwappedStore};
