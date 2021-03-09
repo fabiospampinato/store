@@ -3,7 +3,6 @@
 
 import areShallowEqual from 'are-shallow-equal';
 import {useCallback, useDebugValue, useEffect, useMemo, useRef, useState} from 'react';
-import useMounted from 'react-use-mounted';
 import ChangesCounters from '../changes_counters';
 import {EMPTY_ARRAY, COMPARATOR_FALSE, SELECTOR_IDENTITY} from '../consts';
 import Errors from '../errors';
@@ -56,7 +55,7 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
   if ( !stores.length ) throw Errors.storesEmpty ();
 
-  const mounted = useMounted (),
+  const mountedRef = useRef ( false ),
         storesRef = useRef<Store[] | undefined> (),
         storesMemo = ( storesRef.current && areShallowEqual ( storesRef.current, stores ) ) ? storesRef.current : stores,
         selectorMemo = useCallback ( selector, dependencies ),
@@ -88,6 +87,18 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
   useEffect ( () => {
 
+    mountedRef.current = true;
+
+    return () => {
+
+      mountedRef.current = false;
+
+    };
+
+  }, [] );
+
+  useEffect ( () => {
+
     /* COUNTERS */ // Checking if something changed while we weren't subscribed yet, updating
 
     const changesCounterMounting = ChangesCounters.getMultiple ( storesMemo );
@@ -110,7 +121,7 @@ function useStore<Store extends object, R> ( store: Store | Store[], selector: (
 
     return onChange ( storesMemo, ( ...stores ) => selectorRef.current.apply ( undefined, stores ), ( dataPrev, dataNext ) => comparatorRef.current.call ( undefined, dataPrev, dataNext ), ( ...values ) => {
 
-      if ( !mounted.current ) return;
+      if ( !mountedRef.current ) return;
 
       const value = values.length > 1 ? values : values[0];
 

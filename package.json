@@ -63,17 +63,16 @@
     "proxy"
   ],
   "dependencies": {
-    "@types/react": "^16.9.41",
     "are-shallow-equal": "^1.1.1",
     "is-primitive": "^3.0.1",
     "plain-object-is-empty": "^1.0.0",
-    "proxy-watcher": "^3.4.1",
-    "react-use-mounted": "^1.0.0"
+    "proxy-watcher": "^3.4.1"
   },
   "peerDependencies": {
     "react": ">=16.6.0"
   },
   "devDependencies": {
+    "@types/react": "^16.9.41",
     "ava": "^2.4.0",
     "ava-spec": "^1.1.1",
     "awesome-typescript-loader": "^5.2.1",
