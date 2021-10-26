@@ -24,7 +24,7 @@ const Scheduler = {
 
     if ( !Scheduler.queue.size ) return;
 
-    Scheduler.triggerId = Scheduler.triggerSet ( () => {
+    Scheduler.triggerId = Scheduler.triggerSet.call ( undefined, () => {
 
       Scheduler.triggerId = -1;
 
@@ -40,7 +40,7 @@ const Scheduler = {
 
     if ( Scheduler.triggerId === -1 ) return;
 
-    Scheduler.triggerClear ( Scheduler.triggerId );
+    Scheduler.triggerClear.call ( undefined, Scheduler.triggerId );
 
     Scheduler.triggerId = -1;
 
