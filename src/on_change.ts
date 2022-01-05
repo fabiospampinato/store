@@ -54,8 +54,7 @@ function onChange<Store extends object, R> ( store: Store | Store[], selector: (
   const disposers: Disposer[] = [];
 
   let rootsChangeAllCache: Map<Store, string[]> = new Map (),
-      dataPrev = selector.apply ( undefined, stores ), // Fetching initial data
-      comparatorDataPrev = dataPrev;
+      dataPrev = selector.apply ( undefined, stores ); // Fetching initial data
 
   const handler = () => {
 
@@ -78,7 +77,8 @@ function onChange<Store extends object, R> ( store: Store | Store[], selector: (
 
     }
 
-    comparatorDataPrev = dataPrev;
+    const comparatorDataPrev = dataPrev;
+
     dataPrev = data;
 
     const isDataIdentity = ( storesNr === 1 ) ? data === stores[0] : areShallowEqual ( data, stores );
