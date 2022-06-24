@@ -27,6 +27,7 @@ npm install --save store@npm:@fabiospampinato/store
   - [`isIdle`](#isidle)
   - [`onChange`](#onchange)
   - [`batch`](#batch)
+  - [`target`](#target)
   - [`debug`](#debug)
   - [`Hooks`](#hooks)
 - Extra/React
@@ -222,6 +223,28 @@ batch.stop ();
 - ℹ️ This function is critical for performance when performing a very large number of mutations in an asynchronous way.
 - ℹ️ When batching and coalescing asynchronous mutations by passing a function to `batch` everything is taken care of for you: if the passed function throws batching is stopped automatically, nested `batch` calls are not a problem either.
 - ℹ️ When batching and coalescing asynchronous mutations manually using `batch.start` and `batch.stop` you have to make sure that `batch.stop` is always called the same number of times that `batch.start` was called, or batching will never stop. So make sure that for instance thrown errors or early exits are not an issue.
+
+#### `target`
+
+This function unwraps a store and returns the raw plain object used under the hood.
+
+This is its interface:
+
+```ts
+function target<T> ( store: T ): T;
+```
+
+Example usage:
+
+```ts
+import {store, target, isStore} from 'store';
+
+const myStore = store ( { foo: 123 } );
+const rawObject = target ( myStore );
+
+isStore ( myStore ); // => true
+isStore ( rawObject ); // => false
+```
 
 #### `debug`
 
